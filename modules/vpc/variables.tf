@@ -1,19 +1,21 @@
-variable "network_name" {
-  description = "Name of the VPC network. Must be unique within the project and follow GCP naming conventions"
+variable "cidr_block" {
+  description = "The CIDR block for the VPC"
   type        = string
+
+  validation {
+    condition     = can(cidrhost(var.cidr_block, 0))
+    error_message = "Must be a valid IPv4 CIDR block address."
+  }
 }
 
-variable "subnet_name" {
-  description = "Name of the subnet within the VPC network. Must be unique within the region"
-  type        = string
+variable "enable_dns_support" {
+  description = "Enable DNS support in the VPC"
+  type        = bool
+  default     = true
 }
 
-variable "subnet_cidr" {
-  description = "CIDR block for the subnet in IPv4 format (e.g., '10.0.1.0/24', '192.168.0.0/16'). Must not overlap with other subnets"
-  type        = string
-}
-
-variable "region" {
-  description = "GCP region where the subnet will be created (e.g., 'us-central1', 'europe-west1'). Network is global, subnet is regional"
-  type        = string
+variable "tags" {
+  description = "A map of tags to assign to the VPC"
+  type        = map(string)
+  default     = {}
 }
