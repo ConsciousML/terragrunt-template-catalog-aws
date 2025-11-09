@@ -6,7 +6,5 @@ unit "vpc" {
     version      = values.version
     cidr_block = values.cidr_block
     enable_dns_support = values.enable_dns_support
-    cidr_block = "10.0.0.0/16"
-    enable_dns_support = "false"
   }
 }
