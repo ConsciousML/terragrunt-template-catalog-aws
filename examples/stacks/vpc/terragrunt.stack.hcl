@@ -13,7 +13,9 @@ stack "vpc" {
   path   = "infrastructure"
   values = {
     version = local.version
-    cidr_block = "10.0.0.0/16"
+    cidr_block_vpc = "10.0.0.0/16"
+    cidr_block_subnet = "10.0.1.0/24"
     enable_dns_support = "false"
+    zone = "eu-west-3a"
   }
 }
