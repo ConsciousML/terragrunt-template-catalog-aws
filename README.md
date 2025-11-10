@@ -5,7 +5,7 @@
 [![CI](https://github.com/ConsciousML/terragrunt-template-catalog-gcp/actions/workflows/ci.yaml/badge.svg)](https://github.com/ConsciousML/terragrunt-template-catalog-gcp/actions/workflows/ci.yaml)
 [![PR's Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat)](http://makeapullrequest.com)
 
-A Terragrunt Template Catalog for production Infrastructure as Code (IaC) on Google Cloud Platform (GCP).
+A Terragrunt Template Catalog for production Infrastructure as Code (IaC) on Amazon Web Services (AWS).
 
 ## Catalog vs Live Infrastructure
 
@@ -13,7 +13,7 @@ This is a **catalog repository**, a collection of reusable IaC components.
 
 This toolkit uses two template repositories:
 - **This repository** (catalog): Build a collection of reusable [modules](./modules), [units](./units/), and [stacks](./stacks/)
-- **Live repository**: Reference these components your the [infrastructure-live repository](https://github.com/ConsciousML/terragrunt-template-live-gcp) to deploy them in a multi-environment ecosystem with production CI/CD
+- **Live repository**: Reference these components your the [infrastructure-live repository](https://github.com/ConsciousML/terragrunt-template-live-aws) to deploy them in a multi-environment ecosystem with production CI/CD
 
 You're new to Terragrunt best practices? Read [Gruntwork's official production patterns](https://github.com/gruntwork-io/terragrunt-infrastructure-catalog-example) to get the foundations required to use this extended repository.
 
@@ -34,14 +34,14 @@ Modules (modules/) → Units (units/) → Stacks (stacks/) → Examples (example
 
 ## Getting Started
 ### Prerequisites
-- GCP account with billing enabled
+- AWS account with billing enabled
 - GitHub account
-- GCP IAM permissions to create service accounts, network, compute, and workload identity pools
+- AWS IAM permissions to create IAM roles, VPC/networking resources, and compute resources (EC2/ECS/Lambda)
 
 ### Fork the Repository
 First, you'll need to fork this repository and make a few changes:
 1. Click on `Use this template` to create your own repository
-2. Use your IDE of choice to replace every occurrence of `github.com/ConsciousML/terragrunt-template-catalog-gcp` and `git::git@github.com:ConsciousML/terragrunt-template-catalog-gcp.git` by your GitHub repo URL following the same format
+2. Use your IDE of choice to replace every occurrence of `github.com/ConsciousML/terragrunt-template-catalog-aws` and `git::git@github.com:ConsciousML/terragrunt-template-catalog-aws.git` by your GitHub repo URL following the same format
 3. In `examples/` change `region.hcl` and `project.hcl` to match your GCP settings
 
 **Warning**: If you skip step 2, the TG source links will still point to the original repository (on `github.com/ConsciousML/`).
@@ -82,15 +82,17 @@ For more information on how to use mise, read their [getting started guide](http
 - [Python3.13.1](https://www.python.org/downloads/)
 - [tflint](https://github.com/terraform-linters/tflint)
 - [GitHub CLI](https://github.com/cli/cli#installation)
-- [gcloud CLI](https://cloud.google.com/sdk/docs/install)
+- [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
 
 See [mise.toml](./mise.toml) for specific versions.
 
-### Authenticate with GCP
-```bash
-gcloud auth login
-gcloud auth application-default login
+### Authenticate with AWS
+Authenticate to the AWS CLI:
 ```
+aws configure
+```
+
+For more information, read the [AWS CLI authentication documentation](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html).
 
 ### Deploy an Example Architecture
 
