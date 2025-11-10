@@ -1,15 +1,15 @@
 # Development Workflow
 
-This guide walks you through the complete development workflow for adding new infrastructure modules to the Terragrunt Template Catalog for GCP.
+This guide walks you through the complete development workflow for adding new infrastructure modules to the Terragrunt Template Catalog for AWS.
 
 ## Overview
 
-The development process follows a structured approach with four main layers:
+The development process follows a structured approach with these layers:
 
 1. **Terraform Module** (`modules/`): The core infrastructure code
 2. **Terragrunt Unit** (`units/`): Wrapper that makes the module reusable
-3. **Stack Definition** (`stacks/`): Combines units into deployable infrastructure
-4. **Example Implementation** (`examples/`): Concrete usage examples for testing
+3. **Local Stack** (`examples/stacks/*/local/`): Test your changes locally before publishing
+4. **Remote Stack** (`stacks/`) *(Optional)*: Parameterized stack for reuse across multiple live repositories
 
 ## Step-by-Step Development Process
 Read the step-by-step process and then read the [practical example](#practical-example).
@@ -23,10 +23,10 @@ git checkout -b add-new-module-feature
 Create your infrastructure module in `modules/your_module/` with the standard Terraform files:
 - `main.tf`: Resource definitions
 - `variables.tf`: Input variables with detailed descriptions
-- `output.tf`: Output values (if needed)
+- `outputs.tf`: Output values (if needed)
 - `providers.tf`: Provider requirements
-- `header.md`: Header documentation for `terraform-docs`.
-- `footer.md`: Footer documentation for `terraform-docs`.
+- `header.md`: Header documentation for `terraform-docs`
+- `footer.md`: Footer documentation for `terraform-docs`
 
 Read the [instructions](../modules/README.md#documentation) to learn more on documentation generation with `terraform-docs`.
 
@@ -36,18 +36,13 @@ Write a terragrunt wrapper in `units/your_module/terragrunt.hcl` that:
 - Defines dependencies on other units (if needed)
 - Maps unit inputs to module variables
 
-### 4. Add to a Stack
-Either create a new stack in `stacks/your_stack/` or add your unit to an existing stack that:
+### 4. Create a Local Stack for Testing
+Create a local stack in `examples/stacks/your_stack/local/terragrunt.stack.hcl` that:
+- References units using `${get_repo_root()}/units/unit_name` for local development
 - Combines multiple units into a cohesive infrastructure deployment
-- Passes values from stack parameters to unit inputs
-- Defines the deployment path for each unit
+- Provides concrete configuration values for testing
+- Uses automatic version detection:
 
-### 5. Instantiate the Stack 
-Write an example in `examples/stacks/your_example/` that:
-- Demonstrates concrete usage of your stack
-- Provides configuration values
-
-**Important**: remember to set the version of your source to your current branch or use the following to automate reference selection:
 ```hcl
 locals {
   # Sets the reference of the source code to:
@@ -59,56 +54,74 @@ locals {
   )
 }
 
-stack "vpc_db" {
-  source = "your_git_url//stacks/vpc_db?ref=${local.version}"
-  path   = "infrastructure"
+unit "your_module" {
+  source = "${get_repo_root()}/units/your_module"
+  path   = "your_module"
 
   values = {
     version = local.version
-    # ...
+    # your concrete values here
   }
-  # ...
 }
 ```
 
-### 6. Test Your Changes
+### 5. Test Your Changes
 ```bash
-cd examples/stacks/your_example
+cd examples/stacks/your_stack/local
 terragrunt stack generate
 terragrunt stack run validate
 terragrunt stack run plan
 terragrunt stack run apply
 ```
 
-### 7. Create Pull Request
+### 6. Create Pull Request
 Once your stack works correctly, create a PR and merge it to `main`.
+
+### 7. (Optional) Create a Reusable Remote Stack
+If you plan to use this stack across multiple live repositories with different configurations, create a parameterized stack in `stacks/your_stack/terragrunt.stack.hcl` (see [stacks/vpc/terragrunt.stack.hcl](../stacks/vpc/terragrunt.stack.hcl) as an example):
+- References units using git URLs with `ref=${values.version}`
+- Accepts parameters via `values.*` instead of hardcoded values
+- Can be instantiated multiple times with different configurations
+
+**Note**: If you only need this stack in one live repository, you can skip this step and implement the stack directly in the live repo itself (mirroring the structure from `stacks/`). This makes the development process simpler.
 
 ## Practical Example
 
-Here's how the GCE module was developed and integrated in the `vpc_gce` stack by following the workflow:
+Here's how the subnet module was developed and integrated into a VPC stack by following the workflow:
 
-### 1. Terraform Module → [modules/gce/](../modules/gce/)
-Created the base infrastructure code with [main.tf](../modules/gce/main.tf), [variables.tf](../modules/gce/variables.tf), [providers.tf](../modules/gce/providers.tf) and [output.tf](../modules/gce/output.tf)
+### 1. Terraform Modules
+Created the base infrastructure code:
+- **VPC Module** → [modules/vpc/](../modules/vpc/) with [main.tf](../modules/vpc/main.tf), [variables.tf](../modules/vpc/variables.tf), [providers.tf](../modules/vpc/providers.tf), and [outputs.tf](../modules/vpc/output.tf)
+- **Subnet Module** → [modules/subnet/](../modules/subnet/) with [main.tf](../modules/subnet/main.tf), [variables.tf](../modules/subnet/variables.tf), [providers.tf](../modules/subnet/providers.tf), and [outputs.tf](../modules/subnet/outputs.tf)
 
-### 2. Terragrunt Unit → [units/gce/](../units/gce/)
-Wrapped the module in [terragrunt.hcl](../units/gce/terragrunt.hcl) with dependencies on VPC and APIs units
+### 2. Terragrunt Units
+Wrapped the modules in Terragrunt units:
+- **VPC Unit** → [units/vpc/terragrunt.hcl](../units/vpc/terragrunt.hcl)
+- **Subnet Unit** → [units/subnet/terragrunt.hcl](../units/subnet/terragrunt.hcl) with dependency on VPC unit to get the VPC ID
 
-### 3. Stack Definition → [stacks/vpc_gce/](../stacks/vpc_gce/)
-Combined units into [terragrunt.stack.hcl](../stacks/vpc_gce/terragrunt.stack.hcl) (APIs + VPC + GCE)
+### 3. Local Stack for Testing
+Created [examples/stacks/vpc/local/terragrunt.stack.hcl](../examples/stacks/vpc/local/terragrunt.stack.hcl) with:
+- Local references using `${get_repo_root()}/units/*`
+- Concrete values for VPC (CIDR: 10.0.0.0/16) and Subnet (CIDR: 10.0.1.0/24, AZ: eu-west-3a)
+- Automatic version detection for the current branch
 
-### 4. Example Implementation → [examples/stacks/vpc_gce/](.../examples/stacks/vpc_gce/)
-Created [terragrunt.stack.hcl](../examples/stacks/vpc_gce/terragrunt.stack.hcl) with concrete values for testing
-
-### 5. Testing Commands
+### 4. Testing Commands
 
 ```bash
-cd examples/stacks/vpc_gce
+cd examples/stacks/vpc/local
 terragrunt stack generate
 terragrunt stack run validate
 terragrunt stack run plan
 terragrunt stack run apply
 terragrunt stack run destroy
 ```
+
+### 5. (Optional) Remote Stack
+Created [stacks/vpc/terragrunt.stack.hcl](../stacks/vpc/terragrunt.stack.hcl) with:
+- Git URLs for unit sources
+- Parameterized values (`values.cidr_block_vpc`, `values.cidr_block_subnet`, `values.zone`)
+- Can be reused across multiple live repositories with different configurations
+- If implementing directly in a live repo, mirror this structure but customize for your environment
 
 ## Integrate In Production
 Next, tag the latest commit on main:
@@ -121,4 +134,4 @@ git tag $YOUR_GIT_TAG
 git push origin $YOUR_GIT_TAG
 ```
 
-Finally, integrate your modification in the [terragrunt-template-live-gcp](https://github.com/ConsciousML/terragrunt-template-live-gcp) repository inside the appropriate environment.
+Finally, integrate your modification in the [terragrunt-template-live-gcp](https://github.com/ConsciousML/terragrunt-template-live-aws) repository inside the appropriate environment.
