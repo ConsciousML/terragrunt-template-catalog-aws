@@ -46,3 +46,17 @@ unit "github_secrets" {
     github_repo_name = local.github_repo_name
   }
 }
+
+unit "deploy_key" {
+  source = "${get_repo_root()}/units/deploy_key"
+  path   = "deploy_key"
+
+  values = {
+    version            = local.version
+    github_token       = get_env("TF_VAR_github_token")
+    repositories       = [local.github_repo_name]
+    current_repository = local.github_repo_name
+    secret_names       = ["DEPLOY_KEY_TG_CATALOG"]
+    deploy_key_title   = "Terragrunt Catalog Deploy Key"
+  }
+}
