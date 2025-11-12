@@ -23,7 +23,7 @@ terraform {
 }
 
 inputs = {
-  vpc_id = dependency.vpc.outputs.vpc_id
+  vpc_id     = dependency.vpc.outputs.vpc_id
   cidr_block = values.cidr_block
   zone       = values.zone
   tags = {
