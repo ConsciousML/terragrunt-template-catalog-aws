@@ -30,15 +30,13 @@ jobs:
 
       # A composite action that sets up GH actions to run TG:
       # - Loads deploy keys to enable TG to pull private repositories
-      # - Auth GH actions with GCP using Workflow Identity Federation
-      # - Install the gcloud CLI
+      # - Auth GH actions with AWS using OIDC
       # - Runs Mise to install all the tools we need (Terragrunt, OpenTofu, Go, ...)
       - uses: ./.github/actions/setup
         with:
           deploy-keys: ${{ secrets.DEPLOY_KEY_TG_CATALOG }}
-          project-id: ${{ secrets.PROJECT_ID }}
-          wif-provider: ${{ secrets.WIF_PROVIDER }}
-          wif-service-account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Install pre-commit
         run: pip install pre-commit
@@ -50,7 +48,7 @@ jobs:
 
       - name: Run Terragrunt stack generate and plan
         run: |
-          cd examples/stacks/vpc_gce
+          cd examples/stacks/vpc/local
           terragrunt stack generate
           terragrunt stack run plan --backend-bootstrap --non-interactive
 
@@ -115,16 +113,14 @@ jobs:
 
       # A composite action that sets up GH actions to run TG:
       # - Loads deploy keys to enable TG to pull private repositories
-      # - Auth GH actions with GCP using Workflow Identity Federation
-      # - Install the gcloud CLI
+      # - Auth GH actions with AWS using OIDC
       # - Runs Mise to install all the tools we need (Terragrunt, OpenTofu, Go, ...)
       - uses: ./.github/actions/setup
         if: steps.check-label-skip.outputs.label_present == 'false'
         with:
           deploy-keys: ${{ secrets.DEPLOY_KEY_TG_CATALOG }}
-          project-id: ${{ secrets.PROJECT_ID }}
-          wif-provider: ${{ secrets.WIF_PROVIDER }}
-          wif-service-account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Run Terratest
         if: steps.check-label-skip.outputs.label_present == 'false'

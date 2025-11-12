@@ -36,6 +36,16 @@ unit "iam_role_github_actions" {
   }
 }
 
+unit "iam_policies" {
+  source = "${get_repo_root()}/units/iam_policies"
+  path   = "iam_policies"
+
+  values = {
+    version     = local.version
+    policy_arns = ["arn:aws:iam::aws:policy/AdministratorAccess"]
+  }
+}
+
 unit "github_secrets" {
   source = "${get_repo_root()}/units/github_secrets"
   path   = "github_secrets"
