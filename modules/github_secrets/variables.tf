@@ -9,17 +9,12 @@ variable "github_repo_name" {
   type        = string
 }
 
-variable "wif_provider" {
-  description = "Workload Identity Federation provider resource name (e.g., 'projects/PROJECT_NUM/locations/global/workloadIdentityPools/POOL_ID/providers/PROVIDER_ID')"
+variable "aws_region" {
+  description = "AWS region where resources are deployed"
   type        = string
 }
 
-variable "wif_service_account" {
-  description = "Email address of the service account configured for Workload Identity Federation (e.g., 'service-account@PROJECT_ID.iam.gserviceaccount.com')"
-  type        = string
-}
-
-variable "project_id" {
-  description = "Google Cloud project ID where the Workload Identity Federation is configured"
+variable "aws_role_arn" {
+  description = "ARN of the IAM role that GitHub Actions will assume"
   type        = string
 }
