@@ -3,8 +3,13 @@ variable "name" {
   type        = string
 }
 
-variable "github_repo" {
-  description = "GitHub repository in the format 'org/repo'"
+variable "github_username" {
+  description = "GitHub username or organization name"
+  type        = string
+}
+
+variable "github_repo_name" {
+  description = "GitHub repository name"
   type        = string
 }
 

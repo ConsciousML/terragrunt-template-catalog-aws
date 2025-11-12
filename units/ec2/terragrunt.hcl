@@ -5,9 +5,6 @@ include "root" {
 locals {
   environment_hcl = find_in_parent_folders("environment.hcl")
   environment     = read_terragrunt_config(local.environment_hcl).locals.environment
-
-  region_hcl = find_in_parent_folders("region.hcl")
-  region     = read_terragrunt_config(local.region_hcl).locals.region
 }
 
 dependency "subnet" {

@@ -12,9 +12,10 @@ terraform {
 }
 
 inputs = {
-  name          = values.name
-  github_repo   = values.github_repo
-  github_branch = values.github_branch
+  name             = values.name
+  github_username  = values.github_username
+  github_repo_name = values.github_repo_name
+  github_branch    = values.github_branch
   tags = {
     environment = "${local.environment}"
   }

@@ -6,6 +6,9 @@ locals {
     try(run_cmd("git", "rev-parse", "--abbrev-ref", "HEAD"), ""),
     "main" # fallback
   )
+
+  github_username  = "ConsciousML"
+  github_repo_name = "terragrunt-template-catalog-aws"
 }
 
 unit "github_oidc_provider" {
@@ -25,9 +28,21 @@ unit "iam_role_github_actions" {
   path   = "iam_role_github_actions"
 
   values = {
-    version       = local.version
-    name          = "github-actions-terragrunt-role"
-    github_repo   = "ConsciousML/terragrunt-template-catalog-aws"
-    github_branch = "*"
+    version          = local.version
+    name             = "github-actions-terragrunt-role"
+    github_username  = local.github_username
+    github_repo_name = local.github_repo_name
+    github_branch    = "*"
+  }
+}
+
+unit "github_secrets" {
+  source = "${get_repo_root()}/units/github_secrets"
+  path   = "github_secrets"
+
+  values = {
+    version          = local.version
+    github_token     = get_env("TF_VAR_github_token")
+    github_repo_name = local.github_repo_name
   }
 }
