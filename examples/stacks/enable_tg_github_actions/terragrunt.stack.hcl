@@ -8,14 +8,26 @@ locals {
   )
 }
 
-unit "oidc_provider" {
+unit "github_oidc_provider" {
   source = "${get_repo_root()}/units/oidc_provider"
-  path   = "oidc_provider"
+  path   = "github_oidc_provider"
 
   values = {
     version         = local.version
     url             = "https://token.actions.githubusercontent.com"
     client_id_list  = ["sts.amazonaws.com"]
     thumbprint_list = []
+  }
+}
+
+unit "iam_role_github_actions" {
+  source = "${get_repo_root()}/units/iam_role_github_actions"
+  path   = "iam_role_github_actions"
+
+  values = {
+    version       = local.version
+    name          = "github-actions-terragrunt-role"
+    github_repo   = "ConsciousML/terragrunt-template-catalog-aws"
+    github_branch = "*"
   }
 }
