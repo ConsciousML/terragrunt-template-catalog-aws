@@ -13,8 +13,8 @@ unit "vpc" {
   path   = "vpc"
 
   values = {
-    version      = local.version
-    cidr_block = "10.0.0.0/16" 
+    version            = local.version
+    cidr_block         = "10.0.0.0/16"
     enable_dns_support = "false"
   }
 }
@@ -24,9 +24,9 @@ unit "subnet" {
   path   = "subnet"
 
   values = {
-    version      = local.version
+    version    = local.version
     cidr_block = "10.0.1.0/24"
-    zone = "eu-west-3a"
+    zone       = "eu-west-3a"
   }
 }
 

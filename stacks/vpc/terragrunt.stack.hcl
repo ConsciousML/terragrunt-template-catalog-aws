@@ -3,8 +3,8 @@ unit "vpc" {
   path   = "vpc"
 
   values = {
-    version      = values.version
-    cidr_block = values.cidr_block_vpc
+    version            = values.version
+    cidr_block         = values.cidr_block_vpc
     enable_dns_support = values.enable_dns_support
   }
 }
@@ -14,8 +14,8 @@ unit "subnet" {
   path   = "subnet"
 
   values = {
-    version      = values.version
+    version    = values.version
     cidr_block = values.cidr_block_subnet
-    zone = values.zone
+    zone       = values.zone
   }
 }

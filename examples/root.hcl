@@ -24,7 +24,7 @@ remote_state {
     bucket = "tofu-state-${local.environment}"
 
     # The state file path within the bucket, based on module's relative path to ensure each module has its own isolated state
-    key = "${path_relative_to_include()}/tofu.tfstate"
+    key            = "${path_relative_to_include()}/tofu.tfstate"
     dynamodb_table = "terragrunt_lock_table"
   }
 }

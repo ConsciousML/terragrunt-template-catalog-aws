@@ -16,8 +16,8 @@ terraform {
 
 
 inputs = {
-  cidr_block = values.cidr_block
-  region       = local.region
+  cidr_block         = values.cidr_block
+  region             = local.region
   enable_dns_support = values.enable_dns_support
   tags = {
     environment = "${local.environment}"
