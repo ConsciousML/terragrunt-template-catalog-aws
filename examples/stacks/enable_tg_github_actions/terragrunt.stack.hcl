@@ -8,9 +8,9 @@ locals {
   )
 }
 
-unit "aws_oidc_provider" {
-  source = "${get_repo_root()}/units/aws_oidc_provider"
-  path   = "aws_oidc_provider"
+unit "oidc_provider" {
+  source = "${get_repo_root()}/units/oidc_provider"
+  path   = "oidc_provider"
 
   values = {
     version         = local.version
