@@ -25,3 +25,6 @@ out/
 
 # Lambda deployment packages
 *.zip
+
+# AWS
+*_accessKeys.csv
