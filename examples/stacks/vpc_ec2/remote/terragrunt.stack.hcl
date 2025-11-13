@@ -8,8 +8,8 @@ locals {
   )
 }
 
-stack "vpc" {
-  source = "github.com/ConsciousML/terragrunt-template-catalog-aws//stacks/vpc?ref=${local.version}"
+stack "vpc_ec2" {
+  source = "github.com/ConsciousML/terragrunt-template-catalog-aws//stacks/vpc_ec2?ref=${local.version}"
   path   = "infrastructure"
   values = {
     version            = local.version
@@ -17,5 +17,7 @@ stack "vpc" {
     cidr_block_subnet  = "10.0.1.0/24"
     enable_dns_support = "false"
     zone               = "eu-west-3a"
+    ec2_ami            = "ami-0ef9bcd5dfb57b968"
+    ec2_instance_type  = "t3.micro"
   }
 }
