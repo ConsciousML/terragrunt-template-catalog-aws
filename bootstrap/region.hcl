@@ -1,4 +1,4 @@
-# The GCP region
+# The AWS region
 locals {
-  region = "europe-west-1"
+  region = "eu-west-3"
 }
