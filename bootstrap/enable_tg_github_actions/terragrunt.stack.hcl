@@ -16,7 +16,8 @@ stack "enable_tg_github_actions" {
     policy_arns = [
       "arn:aws:iam::aws:policy/AmazonEC2FullAccess",
       "arn:aws:iam::aws:policy/AmazonVPCFullAccess",
-      "arn:aws:iam::aws:policy/IAMFullAccess"
+      "arn:aws:iam::aws:policy/IAMFullAccess",
+      "arn:aws:iam::aws:policy/AmazonS3FullAccess"
     ]
     github_branch           = "*"
     oidc_url                = "https://token.actions.githubusercontent.com"
