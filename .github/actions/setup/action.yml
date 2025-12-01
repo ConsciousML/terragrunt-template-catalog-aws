@@ -16,9 +16,9 @@ runs:
   using: 'composite'
   steps:
     # Use deploy key for Terragrunt to pull private repositories
-    - uses: webfactory/ssh-agent@v0.9.0
-      with:
-        ssh-private-key: ${{ inputs.deploy-keys }}
+    #- uses: webfactory/ssh-agent@v0.9.0
+    #  with:
+    #    ssh-private-key: ${{ inputs.deploy-keys }}
 
     # Use OIDC to authenticate GitHub Actions with AWS
     # Terragrunt needs permissions from AWS to run plan and apply
