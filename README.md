@@ -1,8 +1,8 @@
-# Terragrunt Template Catalog for GCP
+# Terragrunt Template Catalog for AWS
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![GitHub Release](https://img.shields.io/github/release/ConsciousML/terragrunt-template-catalog-gcp.svg?style=flat)]()
-[![CI](https://github.com/ConsciousML/terragrunt-template-catalog-gcp/actions/workflows/ci.yaml/badge.svg)](https://github.com/ConsciousML/terragrunt-template-catalog-gcp/actions/workflows/ci.yaml)
+[![GitHub Release](https://img.shields.io/github/release/ConsciousML/terragrunt-template-catalog-aws.svg?style=flat)]()
+[![CI](https://github.com/ConsciousML/terragrunt-template-catalog-aws/actions/workflows/ci.yaml/badge.svg)](https://github.com/ConsciousML/terragrunt-template-catalog-aws/actions/workflows/ci.yaml)
 [![PR's Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat)](http://makeapullrequest.com)
 
 A Terragrunt Template Catalog for production Infrastructure as Code (IaC) on Amazon Web Services (AWS).
@@ -25,24 +25,24 @@ The catalog follows a layered architecture where each layer builds upon the prev
 Modules (modules/) → Units (units/) → Stacks (stacks/) → Examples (examples/)
 ```
 
-- **[Modules](modules/README.md)**: Reusable Terraform modules that declare GCP resources (VPC, databases, compute instances, etc.)
+- **[Modules](modules/README.md)**: Reusable Terraform modules that declare AWS resources (VPC, databases, compute instances, etc.)
 - **[Units](units/README.md)**: Terragrunt wrappers around modules that add configuration and dependencies
 - **[Stacks](stacks/README.md)**: Collections of units arranged in dependency graphs for pattern level re-use
 - **[Examples](examples/README.md)**: Simple configuration for testing and development
-- **[Bootstrap](bootstrap/README.md)**: GitHub Actions GCP authentication setup
+- **[Bootstrap](bootstrap/README.md)**: GitHub Actions AWS authentication setup
 - **[CI](docs/continuous-integration.md)**: Automated configuration validation, testing (`terratest`) and documatentation (`terraform-docs`).
 
 ## Getting Started
 ### Prerequisites
 - AWS account with billing enabled
 - GitHub account
-- AWS IAM permissions to create IAM roles, VPC/networking resources, and compute resources (EC2/ECS/Lambda)
+- AWS IAM permissions to manage IAM roles, VPC resources, compute resources and S3 (see `policy_arns` in the [bootstrap stack](bootstrap/enable_tg_github_actions/terragrunt.stack.hcl) for a list of the specific IAM policies)
 
 ### Fork the Repository
 First, you'll need to fork this repository and make a few changes:
 1. Click on `Use this template` to create your own repository
 2. Use your IDE of choice to replace every occurrence of `github.com/ConsciousML/terragrunt-template-catalog-aws` and `git::git@github.com:ConsciousML/terragrunt-template-catalog-aws.git` by your GitHub repo URL following the same format
-3. In `examples/` change `region.hcl` and `project.hcl` to match your GCP settings
+3. In `examples/` and `bootstrap` change the `region.hcl` to match your desired AWS region.
 
 **Warning**: If you skip step 2, the TG source links will still point to the original repository (on `github.com/ConsciousML/`).
 
@@ -96,15 +96,15 @@ For more information, read the [AWS CLI authentication documentation](https://do
 
 ### Deploy an Example Architecture
 
-Deploy a stack that activates GCP APIs, sets up a VPC, and spawns a Compute Engine:
+Deploy a stack that creates a VPC and deploys an EC2 instance in a subnet:
 
 ```bash
-cd examples/stacks/vpc_gce
+cd examples/stacks/vpc_ec2/local/
 terragrunt stack generate
 terragrunt stack run apply --backend-bootstrap --non-interactive
 ```
 
-- Go into the GCP console and check that your resources have been created
+- Go into the AWS console and check that your resources have been created
 - Then cleanup by destroying the infrastructure:
 
 ```bash
@@ -112,7 +112,7 @@ terragrunt stack generate
 terragrunt stack run destroy --non-interactive
 ```
 
-**Caution**: This workflow is for development and testing. Reference your catalog components in the [infrastructure-live repository](https://github.com/ConsciousML/terragrunt-template-live-gcp) for multi-environment IaC, and production CI/CD.
+**Caution**: This workflow is for development and testing. Reference your catalog components in the [infrastructure-live repository](https://github.com/ConsciousML/terragrunt-template-live-aws) for multi-environment IaC, and production CI/CD.
 
 ## Development Workflow
 
@@ -126,7 +126,7 @@ See the [development guide](docs/development.md) for a detailed workflow with a 
 
 ## Continuous Integration (CI)
 
-After creating your repository from this template, run the [bootstrap process](bootstrap/README.md) once to configure GitHub Actions authentication with GCP.
+After creating your repository from this template, run the [bootstrap process](bootstrap/README.md) once to configure GitHub Actions authentication with AWS.
 
 The CI provides automated checks and testing:
 1. Create a branch and make changes
@@ -138,7 +138,7 @@ Read more in our [CI workflow guide](docs/continuous-integration.md).
 
 ### Infrastructure Testing
 
-The `run-terratest` label triggers automated infrastructure tests that deploy real GCP resources, validate functionality, and clean up automatically.
+The `run-terratest` label triggers automated infrastructure tests that deploy real AWS resources, validate functionality, and clean up automatically.
 
 See the [testing guide](tests/README.md) for writing custom tests.
 

@@ -58,7 +58,7 @@ EOF
 
 catalog {
   urls = [
-    "https://github.com/ConsciousML/terragrunt-template-catalog-gcp"
+    "https://github.com/ConsciousML/terragrunt-template-catalog-aws"
   ]
 }
 

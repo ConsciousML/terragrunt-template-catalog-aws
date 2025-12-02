@@ -1,21 +1,20 @@
-# GitHub Actions GCP Bootstrap
-Enables GitHub Actions deployment to Google Cloud Platform using Terragrunt with minimal manual steps.
+# GitHub Actions AWS Bootstrap
+Enables GitHub Actions to authenticate with AWS and enable to run Terragrunt for CI/CD.
 
 ## Purpose
 
-Run this **once** after creating a new GitHub repository from this template to authenticate GitHub Actions with GCP.
+Run this **once** after creating a new GitHub repository from this template to authenticate GitHub Actions with AWS.
 
-This enables the CI to run properly without managing secrets and GCP service account keys manually.
+This enables the CI to run properly without managing secrets and AWS credentials manually.
 
 ## Quick Start
 
 ### Prerequisites
 - Follow the [installation instructions](../README.md#installation):
-- GCP project with billing enabled
-- GCP IAM permissions to create service accounts and workload identity pools
+- Same [prerequisites](../README.md#prerequisites) as in the main `README.md`
 
 ### Configuration
-In `bootstrap/` change `region.hcl` and `project.hcl` to match your GCP settings.
+In `bootstrap/` change `region.hcl` to match your desire AWS region.
 Update the following values in `terragrunt.stack.hcl`:
 
 ```hcl
@@ -24,10 +23,10 @@ values = {
   current_repository   = "your-current-repo-name"
 
   # List of the roles necessary for Terragrunt to run in CI/CD
-  wif_iam_roles = [
-    "role_1",
+  policy_arns = [
+    "arn:aws:iam::aws:policy/YourFirstPolicyName",
     ...
-    "role_N"
+    "arn:aws:iam::aws:policy/YourLastPolicyName"
   ]
 
   # List of repository names to give read-only access to the CI
@@ -70,113 +69,59 @@ terragrunt stack run apply
 
 ### Update Your GitHub Actions file
 
-Update your `.github/workflows/ci.yaml` to use the correct deploy key secret names:
+Update your `.github/workflows/ci.yaml` to use the correct deploy key secret names in the setup action:
 
-For single deploy key to match the value in `deploy_key_secret_names`:
+For single deploy key, update the `deploy-keys` parameter to match the value in `deploy_key_secret_names`:
 ```yaml
-# Change this line:
-ssh-private-key: ${{ secrets.DEPLOY_KEY }}
+- uses: ./.github/actions/setup
+  with:
+    deploy-keys: ${{ secrets.YOUR_DEPLOY_KEY_NAME }}
+    role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+    aws-region: ${{ secrets.AWS_REGION }}
 ```
 
 If using multiple deploy keys:
 ```yaml
-- uses: webfactory/ssh-agent@v0.9.0
+- uses: ./.github/actions/setup
   with:
-    ssh-private-key: |
+    deploy-keys: |
       ${{ secrets.DEPLOY_KEY_SECRET_NAME_1 }}
       ${{ secrets.DEPLOY_KEY_SECRET_NAME_2 }}
+    role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+    aws-region: ${{ secrets.AWS_REGION }}
 ```
 
 ### Using the CI
 Read the [continuous integration guide](../docs/continuous-integration.md#using-the-ci).
 
-## Troubleshoot
-If you face an error:
-```bash
-Error: Error creating WorkloadIdentityPool: googleapi: Error 409: Requested entity already exists
-```
-
-This happends because WIP can only be soft-deleted. GCP deletes it after 30 days.
-So we'll need to undelete it and import it in your TF state.
-
-In the trace, under `google_iam_workload_identity_pool_provider.github` find the WIP ID:
-```bash
-workload_identity_pool_id          = "YOUR_WIP_ID"
-```
-
-Declare the `WIP_ID` environment varialbe by replacing `{{YOUR_WIP_ID}}`:
-```bash
-export WIP_ID={{YOUR_WIP_ID}}
-export PROVIDER_ID=github-provider
-```
-
-Then run:
-```bash
-gcloud iam workload-identity-pools undelete $WIP_ID --location=global
-```
-
-`cd` into where your wip unit is:
-```bash
-cd .terragrunt-stack/workload_identity_federation/
-```
-
-The wip unit can be deeper in the tree if you use `stacks`:
-```bash
-cd .terragrunt-stack/enable_tg_github_actions/.terragrunt-stack/workload_identity_federation
-```
-
-Declare the `PROJECT_NUMBER` variable:
-```bash
-export PROJECT_NAME=$(gcloud config get-value project)
-```
-
-Import the pool into Terraform state:
-```bash
-terragrunt import google_iam_workload_identity_pool.github_pool projects/$PROJECT_NAME/locations/global/workloadIdentityPools/$WIP_ID
-
-terragrunt import google_iam_workload_identity_pool_provider.github projects/$PROJECT_NAME/locations/global/workloadIdentityPools/$WIP_ID/providers/$PROVIDER_ID
-```
-
-Go back to the root of your stack and run:
-```bash
-cd ../..
-terragrunt stack run apply
-```
-
-If your still stuck, use another `google_iam_workload_identity_pool` ID.
-
 ## Module Details
 
 This stack instantiates four Terraform modules that work together to run Terragrunt with GitHub Actions.
 
-### 1. APIs Module
-**What**: Enables required GCP services (IAM, Cloud Resource Manager, STS, Compute)
+### 1. [GitHub OIDC Provider](../modules/oidc_provider/README.md)
+Creates an [AWS IAM OpenID Connect provider](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_create_oidc.html) provider to declare the external identify provider (GitHub Actions in this case).
 
-**Why**: Foundation services must be active before creating resources  
+**Why**: GitHub Actions will be a known audience to AWS and will validates its token when authentication occurs.
 
-### 2. Workload Identity Federation (WIF)
-**What**: Creates [OIDC](http://docs.github.com/en/actions/concepts/security/openid-connect) trust between GitHub Actions and GCP.
+### 2. [IAM Role GitHub Actions](../modules/iam_role_github_actions/README.md)
+Creates a IAM Role that can only be used by GitHub Actions running under this specific repository.
 
-**Why**: Allows GitHub Actions to authenticate to GCP without storing service account keys.
+### 3. [GitHub Actions IAM Policies](../modules/iam_policies/README.md)
+Assign policies arns to 2.
+This enables the necessary policies for Terragrunt to run in GitHub Actions.
 
-**Interactions**:
-- Creates the service account and identity pool that GitHub Secrets will reference
-- Only allows authentication from GitHub Actions running in your specified repository 
+### 3. [GitHub Secrets](../modules/github_secrets/README.md)
+Stores `AWS_REGION` and `AWS_ROLE_ARN` as GitHub secrets to be able to be retrieved in GitHub Actions workflows.
 
-### 3. GitHub Secrets
-**What**: Stores WIF credentials as GitHub Actions secrets
+### 4. [Deploy Key](../modules/deploy_key/README.md)
+Generates SSH deploy key for repository access.
 
-**Why**: Provides GitHub Actions workflows with the identity information needed to authenticate to GCP
+Enables Terragrunt to pull code from private repositories during multi-repo deployments.
 
-**Interaction**: 
-- Depends on WIF to get the provider name and service account email
-- These secrets are used in GitHub Actions workflows for authentication
+# Authentication Flow:
 
-### 4. Deploy Key
-**What**: Generates SSH deploy key for repository access.
-
-**Why**: Enables Terragrunt to pull code from private repositories during multi-repo deployments.
-
-**Interaction**: 
-- Adds public key to target repositories
-- Stores private key as GitHub secret for use in the CI (`webfactory/ssh-agent` github action)
+1. OIDC Provider establishes GitHub Actions as a trusted identity provider in AWS
+2. IAM Role defines who can authenticate (specific GitHub repo/branch) via trust policy
+3. IAM Policies define what the role can do once authenticated (creating, modifying and deleting AWS resources through Terragrunt)
+4. GitHub Secrets stores the role ARN and region for workflows to reference
+5. Deploy Key enables Terragrunt to access private repositories during execution

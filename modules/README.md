@@ -1,10 +1,10 @@
 # Terraform Modules Directory
 
-This directory contains reusable Terraform modules for deploying Google Cloud Platform (GCP) resources.
+This directory contains reusable Terraform modules for deploying AWS resources.
 
 ## What are Modules?
 
-A **module** is a directory containing Terraform configuration files that define GCP resources.
+A **module** is a directory containing Terraform configuration files that define AWS resources.
 
 Each module declares specific Terraform resources and can be reused across different deployments with different input variables.
 

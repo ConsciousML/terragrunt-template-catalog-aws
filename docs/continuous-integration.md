@@ -22,7 +22,7 @@ Runs automatically on every PR:
 
 ### 2. Terratest
 Runs when the `run-terratest` label is added to a PR:
-- **Infrastructure deployment**: Creates actual GCP resources in a test environment
+- **Infrastructure deployment**: Creates real AWS resources in a test environment
 - **Testing**: Runs Go to validate deployed infrastructure
 - **Cleanup**: Automatically destroys test resources
 
@@ -34,7 +34,7 @@ If authoring new Terraform modules in `modules/`, read the [documentation instru
 ## Setup
 ### Initial Setup
 Follow the [bootstrap guide](../bootstrap/README.md) to:
-- Configure GitHub Actions authentication with GCP
+- Configure GitHub Actions authentication with AWS
 - Set up Workload Identity Federation
 - Configure deploy keys for private repositories
 
@@ -71,7 +71,7 @@ When your PR is ready for final validation:
 4. Address any failures and push fixes
 5. Once both jobs pass, merge your PR
 
-> **Note**: Infrastructure tests consume GCP resources and take some time to deploy and destroy. The label check is used to run the tests only run when your PR is ready for final validation before merging.
+> **Note**: Infrastructure tests deploy AWS resources and take some time to deploy and destroy. The label check is used to run the tests only run when your PR is ready for final validation before merging.
 
 ## Troubleshooting
 
@@ -82,12 +82,11 @@ When your PR is ready for final validation:
 
 ### Terragrunt Plan Failures
 - Ensure all required variables are set in `terragrunt.hcl`
-- Check that GCP APIs are enabled
-- Verify IAM permissions for the service account
+- Verify IAM Policies attached to Terragrunt's IAM Role 
 
 ### Terratest Failures
 - Check the `run-terratest` label is present on the PR
-- Ensure test environment has sufficient GCP quotas
+- Ensure test environment has sufficient AWS quotas
 - Review test logs for specific infrastructure deployment issues
 
 ## Tips
