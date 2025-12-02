@@ -25,11 +25,11 @@ The catalog follows a layered architecture where each layer builds upon the prev
 Modules (modules/) → Units (units/) → Stacks (stacks/) → Examples (examples/)
 ```
 
-- **[Modules](modules/README.md)**: Reusable Terraform modules that declare GCP resources (VPC, databases, compute instances, etc.)
+- **[Modules](modules/README.md)**: Reusable Terraform modules that declare AWS resources (VPC, databases, compute instances, etc.)
 - **[Units](units/README.md)**: Terragrunt wrappers around modules that add configuration and dependencies
 - **[Stacks](stacks/README.md)**: Collections of units arranged in dependency graphs for pattern level re-use
 - **[Examples](examples/README.md)**: Simple configuration for testing and development
-- **[Bootstrap](bootstrap/README.md)**: GitHub Actions GCP authentication setup
+- **[Bootstrap](bootstrap/README.md)**: GitHub Actions AWS authentication setup
 - **[CI](docs/continuous-integration.md)**: Automated configuration validation, testing (`terratest`) and documatentation (`terraform-docs`).
 
 ## Getting Started
@@ -104,7 +104,7 @@ terragrunt stack generate
 terragrunt stack run apply --backend-bootstrap --non-interactive
 ```
 
-- Go into the GCP console and check that your resources have been created
+- Go into the AWS console and check that your resources have been created
 - Then cleanup by destroying the infrastructure:
 
 ```bash

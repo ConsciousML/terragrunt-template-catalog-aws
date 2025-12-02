@@ -134,4 +134,4 @@ git tag $YOUR_GIT_TAG
 git push origin $YOUR_GIT_TAG
 ```
 
-Finally, integrate your modification in the [terragrunt-template-live-gcp](https://github.com/ConsciousML/terragrunt-template-live-aws) repository inside the appropriate environment.
+Finally, integrate your modification in the [terragrunt-template-live-aws](https://github.com/ConsciousML/terragrunt-template-live-aws) repository inside the appropriate environment.

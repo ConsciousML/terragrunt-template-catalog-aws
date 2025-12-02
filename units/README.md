@@ -1,6 +1,6 @@
 # Terragrunt Units Directory
 
-This directory contains reusable [Terragrunt units](https://terragrunt.gruntwork.io/docs/features/units/) for deploying Google Cloud Platform (GCP) infrastructure. 
+This directory contains reusable [Terragrunt units](https://terragrunt.gruntwork.io/docs/features/units/) for deploying AWS infrastructure.
 
 Each unit represents a single piece of infrastructure that can be composed together to create complete stacks.
 

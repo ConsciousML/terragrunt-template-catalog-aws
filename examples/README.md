@@ -24,7 +24,7 @@ Stacks in `examples/stacks/` reference the catalog using git links with automati
 
 ```hcl
 stack "vpc_db" {
-  source = "github.com/ConsciousML/terragrunt-template-catalog-gcp//stacks/vpc_db?ref=${local.version}"
+  source = "github.com/ConsciousML/terragrunt-template-catalog-aws//stacks/vpc_ec2?ref=${local.version}"
   # ...
 }
 ```
