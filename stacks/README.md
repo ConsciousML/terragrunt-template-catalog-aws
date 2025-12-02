@@ -1,6 +1,6 @@
 # Terragrunt Stacks Directory
 
-This directory contains reusable [Terragrunt stacks](https://terragrunt.gruntwork.io/docs/features/stacks/) for deploying multiple components on GCP,
+This directory contains reusable [Terragrunt stacks](https://terragrunt.gruntwork.io/docs/features/stacks/) for deploying multiple components on AWS,
 
 ## What are Stacks?
 
