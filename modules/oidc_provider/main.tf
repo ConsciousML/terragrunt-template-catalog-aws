@@ -9,6 +9,12 @@ resource "aws_iam_openid_connect_provider" "github_actions" {
   thumbprint_list = var.thumbprint_list
 
   tags = var.tags
+
+  # AWS automatically manages thumbprints for well-known providers like GitHub Actions
+  # Ignore changes to prevent perpetual drift in plans
+  lifecycle {
+    ignore_changes = [thumbprint_list]
+  }
 }
 
 data "aws_iam_openid_connect_provider" "github_actions" {
