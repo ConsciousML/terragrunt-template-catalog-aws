@@ -129,6 +129,7 @@ jobs:
   terraform-docs:
     # Generates terraform documentation using terraform-docs
     runs-on: ubuntu-latest
+    needs: terratest
 
     steps:
       - name: Checkout code
@@ -142,3 +143,28 @@ jobs:
           working-dir: .
           config-file: .terraform-docs.yml
           git-push: "true"
+
+      - name: Copy terratest status to new commit
+        if: success()
+        run: |
+          # Get the new commit SHA after terraform-docs push
+          git fetch origin ${{ github.event.pull_request.head.ref }}
+          NEW_SHA=$(git rev-parse origin/${{ github.event.pull_request.head.ref }})
+          CURRENT_SHA=${{ github.sha }}
+
+          # Only create status if a new commit was created
+          if [ "$NEW_SHA" != "$CURRENT_SHA" ]; then
+            echo "New commit detected: $NEW_SHA"
+            echo "Creating terratest success status on new commit..."
+            gh api \
+              --method POST \
+              repos/${{ github.repository }}/statuses/$NEW_SHA \
+              -f state='success' \
+              -f context='terratest' \
+              -f description='Terratest passed on previous commit' \
+              -f target_url='https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}'
+          else
+            echo "No new commit created by terraform-docs"
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
