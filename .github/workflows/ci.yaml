@@ -19,9 +19,59 @@ permissions:
   pull-requests: write
 
 jobs:
+  terraform-docs:
+    # Generates terraform documentation using terraform-docs
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          token: ${{ secrets.TERRAFORM_DOCS_PAT || secrets.GITHUB_TOKEN }}
+
+      - name: Render terraform docs and push changes back to PR
+        uses: terraform-docs/gh-actions@main
+        with:
+          working-dir: .
+          config-file: .terraform-docs.yml
+          git-push: "true"
+
+  check-docs-changes:
+    # Checks if terraform-docs created a new commit in this workflow run
+    # Fails fast to prevent wasting resources on expensive tests
+    needs: terraform-docs
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
+
+      - name: Check if terraform-docs created a commit in this run
+        env:
+          GITHUB_SHA_BEFORE: ${{ github.event.pull_request.head.sha }}
+        run: |
+          # Get the current HEAD commit SHA after terraform-docs ran
+          CURRENT_SHA=$(git rev-parse HEAD)
+
+          echo "SHA before workflow: $GITHUB_SHA_BEFORE"
+          echo "SHA after terraform-docs: $CURRENT_SHA"
+
+          # If the SHAs are different, terraform-docs created a new commit
+          if [[ "$GITHUB_SHA_BEFORE" != "$CURRENT_SHA" ]]; then
+            echo "terraform-docs created a new commit in this run. Failing fast to trigger new workflow on the new commit."
+            exit 1
+          else
+            echo "No new commit from terraform-docs. Proceeding with tests."
+          fi
+
   code-quality-checks:
     # Runs the pre-commit checks  (see `.pre-commit-config.yaml`)
     # and runs `terragrunt plan` to ensure the IaC configuration is valid
+    needs: [terraform-docs, check-docs-changes]
     runs-on: ubuntu-latest
 
     steps:
@@ -126,19 +176,3 @@ jobs:
         if: steps.check-label-skip.outputs.label_present == 'false'
         run: go test -v ./tests/... -timeout 30m
 
-  terraform-docs:
-    # Generates terraform documentation using terraform-docs
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.ref }}
-
-      - name: Render terraform docs and push changes back to PR
-        uses: terraform-docs/gh-actions@main
-        with:
-          working-dir: .
-          config-file: .terraform-docs.yml
-          git-push: "true"
