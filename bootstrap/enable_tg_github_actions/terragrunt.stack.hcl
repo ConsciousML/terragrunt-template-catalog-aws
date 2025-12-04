@@ -24,6 +24,7 @@ stack "enable_tg_github_actions" {
     oidc_url                = "https://token.actions.githubusercontent.com"
     oidc_client_id_list     = ["sts.amazonaws.com"]
     oidc_thumbprint_list    = []
+    create_oidc_provider    = true
     deploy_key_repositories = [local.github_repo_name]
     deploy_key_secret_names = ["DEPLOY_KEY_TG_CATALOG"]
     deploy_key_title        = "Terragrunt Catalog Deploy Key"

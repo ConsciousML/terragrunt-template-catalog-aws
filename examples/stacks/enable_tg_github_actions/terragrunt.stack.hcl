@@ -20,6 +20,7 @@ unit "github_oidc_provider" {
     url             = "https://token.actions.githubusercontent.com"
     client_id_list  = ["sts.amazonaws.com"]
     thumbprint_list = []
+    create          = true # Set to false in subsequent repos to use existing OIDC provider
   }
 }
 

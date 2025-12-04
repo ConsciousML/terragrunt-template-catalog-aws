@@ -7,6 +7,7 @@ unit "github_oidc_provider" {
     url             = values.oidc_url
     client_id_list  = values.oidc_client_id_list
     thumbprint_list = values.oidc_thumbprint_list
+    create          = values.create_oidc_provider
   }
 }
 

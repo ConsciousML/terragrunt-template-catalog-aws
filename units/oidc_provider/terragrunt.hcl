@@ -15,6 +15,7 @@ inputs = {
   url             = values.url
   client_id_list  = values.client_id_list
   thumbprint_list = values.thumbprint_list
+  create          = values.create
   tags = {
     environment = "${local.environment}"
   }

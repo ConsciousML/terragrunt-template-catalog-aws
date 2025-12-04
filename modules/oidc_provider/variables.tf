@@ -28,3 +28,8 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "create" {
+  description = "Whether to create or retrieve an existing OIDC provider using a data source"
+  type        = bool
+}
