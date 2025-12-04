@@ -29,6 +29,9 @@ values = {
     "arn:aws:iam::aws:policy/YourLastPolicyName"
   ]
 
+  # OIDC Provider creation - set to true for first repo, false for subsequent repos
+  create_oidc_provider = true
+
   # List of repository names to give read-only access to the CI
   # This is necessary for Terragrunt to pull remote source code from external repositories
   deploy_key_repositories = [
@@ -49,6 +52,8 @@ values = {
   # ... other values can remain as defaults
 }
 ```
+
+**Caution:** The GitHub Actions OIDC provider is a **global AWS account-level resource**. It can only be created once per AWS account. If you've already run this bootstrap pipeline in another repository using the same AWS account, set `create_oidc_provider = false` to use the existing OIDC provider instead of attempting to create a new one. Otherwise, the deployment will fail with an `EntityAlreadyExists` error.
 
 Autenticate with the GitHub CLI:
 ```bash
