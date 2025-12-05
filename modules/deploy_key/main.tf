@@ -13,7 +13,7 @@ resource "github_repository_deploy_key" "deploy_key" {
   title      = var.deploy_key_title
   repository = each.key
   key        = tls_private_key.deploy_key[each.key].public_key_openssh
-  read_only  = true
+  read_only  = var.read_only
 }
 
 # Add the private key of each deploy key to the current repository

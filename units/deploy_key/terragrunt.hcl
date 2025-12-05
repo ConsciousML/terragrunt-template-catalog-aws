@@ -12,4 +12,5 @@ inputs = {
   secret_names       = values.secret_names
   current_repository = values.current_repository
   deploy_key_title   = values.deploy_key_title
+  read_only          = values.read_only
 }

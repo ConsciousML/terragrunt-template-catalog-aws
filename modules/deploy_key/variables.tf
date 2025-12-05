@@ -24,3 +24,9 @@ variable "deploy_key_title" {
   type        = string
   default     = "Terragrunt Deploy Key"
 }
+
+variable "read_only" {
+  description = "Whether the deploy key should be read-only (true) or have write access (false). For security, defaults to read-only."
+  type        = bool
+  default     = true
+}
