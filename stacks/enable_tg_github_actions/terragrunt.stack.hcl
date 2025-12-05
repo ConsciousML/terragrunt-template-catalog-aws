@@ -56,5 +56,6 @@ unit "deploy_key" {
     current_repository = values.github_repo_name
     secret_names       = values.deploy_key_secret_names
     deploy_key_title   = values.deploy_key_title
+    read_only          = true
   }
 }
