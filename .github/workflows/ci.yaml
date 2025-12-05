@@ -24,16 +24,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Setup SSH agent with deploy key
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.TERRAFORM_DOCS_DEPLOY_KEY }}
-
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.ref }}
-          persist-credentials: false
+          ssh-key: ${{ secrets.TERRAFORM_DOCS_DEPLOY_KEY }}
 
       - name: Render terraform docs and push changes back to PR
         uses: terraform-docs/gh-actions@main
