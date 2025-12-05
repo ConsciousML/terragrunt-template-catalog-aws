@@ -1,7 +1,7 @@
 <!-- BEGIN_TF_DOCS -->
 # VPC Module
 
-This module creates and configures a Virtual Private Cloud network.
+This module creates and configures a Virtual Private Cloud network
 
 ## Requirements
 
